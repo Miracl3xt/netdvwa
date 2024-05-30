@@ -21,16 +21,6 @@ jobs:
     - name: Install Bandit
       run: pip install bandit
 
-    - name: List changed files
-      id: list_files
-      run: |
-        git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt
-
-    - name: Run Bandit on changed files
-      id: bandit_scan
-      run: |
-        xargs -a changed_files.txt -I {} bandit -r {} -f json -o {}.bandit_output || true
-
     - name: Analyze Bandit Results
       id: analyze_results
       run: |
