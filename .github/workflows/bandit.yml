@@ -45,6 +45,7 @@ jobs:
     - name: Analyze Bandit Results
       id: analyze_results
       run: |
+        cd bandit
         CRITICAL_ISSUES=$(jq '[.results[] | select(.issue_severity=="CRITICAL") ] | length' bandit_output.json)
         HIGH_ISSUES=$(jq '[.results[] | select(.issue_severity=="HIGH") ] | length' bandit_output.json)
 
