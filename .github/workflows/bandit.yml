@@ -27,7 +27,12 @@ jobs:
 
     - name: Run Bandit
       id: bandit_scan
-      run: bandit -r ${{ github.workspace }}/${{ github.event.pull_request.head.ref }} -f json -o bandit_output.json || true
+      run: |
+        PR_PATH="${{ github.workspace }}/${{ github.event.pull_request.head.ref }}"
+        echo "File path to be scanned: $PR_PATH"
+        cat "$PR_PATH"  # Display the content of the file
+        bandit -r "$PR_PATH" -f json -o bandit_output.json || true
+        cat bandit_output.json
 
     - name: Analyze Bandit Results
       id: analyze_results
