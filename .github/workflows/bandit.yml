@@ -35,7 +35,10 @@ jobs:
         git diff --no-prefix "$file" >> "bandit/$file.diff"
         done < bandit/pr_changed_files.txt
         cat "bandit/pr_changed_files.txt"
+        echo "********"
         ls 
+        echo "********"
+        cat *.*
 
     - name: Run Bandit
       id: bandit_scan
