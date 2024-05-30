@@ -37,7 +37,7 @@ jobs:
       run: |
         echo "Running Bandit..."
         cd bandit | ls -lR
-        bandit -r . -f json -o ../bandit_output.json || true
+        bandit -r . -f json -o bandit_output.json || true
         cd ..
         cat "bandit_output.json"
         echo "Bandit scan completed."
