@@ -28,6 +28,8 @@ jobs:
     - name: Run Bandit
       id: bandit_scan
       run: |
+        ls -la ${{ github.workspace }}
+        ls -la ${{ github.workspace }}/${{ github.event.pull_request.head.ref }}
         PR_PATH="${{ github.workspace }}/${{ github.event.pull_request.head.ref }}"
         echo "File path to be scanned: $PR_PATH"
         cat "$PR_PATH"  # Display the content of the file
