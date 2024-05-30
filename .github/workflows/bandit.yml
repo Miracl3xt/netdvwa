@@ -36,7 +36,8 @@ jobs:
         done < bandit/pr_changed_files.txt
         cat "bandit/pr_changed_files.txt"
         echo "********"
-        ls 
+        cd bandit 
+        ls
         echo "********"
         cat *.*
 
