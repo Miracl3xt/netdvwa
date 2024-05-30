@@ -1,22 +1,3 @@
-lol
-hf
-sdfsdfs
-cxdsffd
-gfdgdfg
-dfgdfgfgd
-rtretret
-sdfdsf
-asdads
-aafasfasfasfasfasfasfasfsafasfafasfsasfasfasfasfsaf
-asfasfasf
-sdfsdfsdfdssdsdfsdsdfsdf
-ghfghghjghj
-hgjhgjsdfsdf
-sdfsdf
-sdfsdfsddsfdsf
-asdasdasdxcvxcvxcv
-hggukhjkgu
-kjggkhjukggugkj
 import os
 import re
 import time
