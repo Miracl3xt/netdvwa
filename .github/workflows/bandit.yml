@@ -49,7 +49,7 @@ jobs:
         gh pr comment ${{ github.event.pull_request.number }} --body 'Block'
         gh pr close ${{ github.event.pull_request.number }}
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.netsk }}
 
     - name: Add Comment and Merge PR
       if: env.status == 'success'
@@ -57,4 +57,4 @@ jobs:
         gh pr comment ${{ github.event.pull_request.number }} --body 'Successful'
         gh pr merge ${{ github.event.pull_request.number }} --merge
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.netsk }}
