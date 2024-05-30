@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
     # Fetch only the pull request changes
     - name: Fetch PR changes
       run: git fetch origin +refs/pull/${{ github.event.pull_request.number }}/merge
@@ -35,7 +32,7 @@ jobs:
       run: |
         echo "Running Bandit..."
         ls
-        bandit -r bandit -f json -o bandit_output.json || true
+        bandit -r . -f json -o bandit_output.json || true
         cat "bandit_output.json"
         echo "Bandit scan completed."
 
