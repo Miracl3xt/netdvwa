@@ -21,6 +21,64 @@ jobs:
     - name: Install Bandit
       run: pip install bandit
 
+name: Bandit Python Code Scan
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  bandit-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install Bandit
+      run: pip install bandit
+
+    - name: Run Bandit
+      id: bandit_scan
+      run: bandit -r . -f json -o bandit_output.json || true
+
+    - name: Analyze Bandit Results
+      id: analyze_results
+      run: |
+        CRITICAL_ISSUES=$(jq '[.results[] | select(.issue_severity=="CRITICAL") ] | length' bandit_output.json)
+        HIGH_ISSUES=$(jq '[.results[] | select(.issue_severity=="HIGH") ] | length' bandit_output.json)
+
+        echo "Critical Issues: $CRITICAL_ISSUES"
+        echo "High Issues: $HIGH_ISSUES"
+        
+        if [ "$CRITICAL_ISSUES" -gt 0 ] || [ "$HIGH_ISSUES" -gt 0 ]; then
+          echo "status=block" >> $GITHUB_ENV
+        else
+          echo "status=success" >> $GITHUB_ENV
+        fi
+
+    - name: Add Comment and Block PR
+      if: env.status == 'block'
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body 'Block'
+        gh pr close ${{ github.event.pull_request.number }}
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    - name: Add Comment and Merge PR
+      if: env.status == 'success'
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body 'Successful'
+        gh pr merge ${{ github.event.pull_request.number }} --merge
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
     - name: Analyze Bandit Results
       id: analyze_results
       run: |
