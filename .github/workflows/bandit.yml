@@ -12,13 +12,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      
-    # Fetch only the pull request changes
-    - name: Fetch PR changes
-      run: git fetch origin +refs/pull/${{ github.event.pull_request.number }}/merge
-      
+
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v2
       with:
         python-version: '3.x'
 
@@ -28,16 +24,20 @@ jobs:
     - name: Create Bandit directory and save PR changed files
       run: |
         mkdir bandit
-        git diff --name-only main...${{ github.event.pull_request.base.sha }} | xargs -I {} sh -c 'mkdir -p bandit/$(dirname {}); git show ${{ github.event.pull_request.head.sha }}:{} > bandit/{}'
-        echo "----------"
+        curl -s "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" |
+        jq -r '.[] | .filename' | while read filename; do
+          mkdir -p "bandit/$(dirname "$filename")"
+          git show "origin/main:$filename" > "bandit/$filename"
+        done
         ls bandit
 
     - name: Run Bandit
       id: bandit_scan
       run: |
         echo "Running Bandit..."
-        ls
-        bandit -r . -f json -o bandit_output.json || true
+        cd bandit
+        bandit -r . -f json -o ../bandit_output.json || true
+        cd ..
         cat "bandit_output.json"
         echo "Bandit scan completed."
 
