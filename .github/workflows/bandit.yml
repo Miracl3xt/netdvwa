@@ -28,15 +28,13 @@ jobs:
     - name: Create Bandit directory and save PR changed files
       run: |
         mkdir bandit
-        git diff --unified=0 HEAD $(git merge-base HEAD ${{ github.event.pull_request.base.sha }}) > bandit/pr_changed_files.txt
-        echo "********"
-        ls
-        cat bandit/pr_changed_files.txt
+        ls dsvpwa
 
     - name: Run Bandit
       id: bandit_scan
       run: |
         echo "Running Bandit..."
+        ls
         bandit -r bandit -f json -o bandit_output.json || true
         cat "bandit_output.json"
         echo "Bandit scan completed."
