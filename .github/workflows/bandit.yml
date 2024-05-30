@@ -24,10 +24,11 @@ jobs:
     - name: Create Bandit directory and save PR changed files
       run: |
         mkdir bandit
+        git fetch origin main
         curl -s "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" |
         jq -r '.[] | .filename' | while read filename; do
           mkdir -p "bandit/$(dirname "$filename")"
-          git show "origin/main:$filename" > "bandit/$filename"
+          git show "main:$filename" > "bandit/$filename"
         done
         ls bandit
 
