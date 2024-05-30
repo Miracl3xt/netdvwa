@@ -29,7 +29,7 @@ jobs:
       id: bandit_scan
       run: |
         echo "Running Bandit..."
-        bandit -r ${{ github.workspace }} -f json -o bandit_output.json || true
+        bandit -r ${{ github.workspace }}/${{ github.event.pull_request.head.ref }} -f json -o bandit_output.json || true
         cat "bandit_output.json"
         echo "Bandit scan completed."
 
