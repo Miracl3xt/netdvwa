@@ -34,6 +34,8 @@ jobs:
         echo "Diff for $file:" > "bandit/$file.diff"
         git diff --no-prefix "$file" >> "bandit/$file.diff"
         done < bandit/pr_changed_files.txt
+        bandit/pr_changed_files.txt
+        ls /bandit
 
     - name: Run Bandit
       id: bandit_scan
