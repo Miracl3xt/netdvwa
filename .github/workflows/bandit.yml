@@ -30,11 +30,8 @@ jobs:
         mkdir bandit
         git diff --unified=0 HEAD $(git merge-base HEAD ${{ github.event.pull_request.base.sha }}) > bandit/pr_changed_files.txt
         echo "********"
-        cat bandit/pr_changed_files.txt
-        cd bandit 
         ls
-        echo "********"
-        cat pr_changed_files.txt
+        cat bandit/pr_changed_files.txt
 
     - name: Run Bandit
       id: bandit_scan
