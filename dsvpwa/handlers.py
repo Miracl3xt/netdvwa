@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler
 
-
+@qqwqw
 class VulnRequestHandler():
     def __init__(self):
         self.content_type = 'text/plain'
