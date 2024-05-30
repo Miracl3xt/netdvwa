@@ -9,7 +9,7 @@ import subprocess
 import urllib.request
 import urllib.parse as urlparse
 
-
+#qwqw
 class Attack():
     warning = (
         'This attack vector is unavailable on the current risk level ({}). '
