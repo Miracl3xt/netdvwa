@@ -31,6 +31,8 @@ jobs:
         curl -sL "https://raw.githubusercontent.com/${{ github.repository }}/$base_branch/$filename" > "bandit/$filename"
         done
         ls bandit
+        cd bandit
+        cat *.*
 
     - name: Run Bandit
       id: bandit_scan
