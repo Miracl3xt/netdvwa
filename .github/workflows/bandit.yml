@@ -28,13 +28,7 @@ jobs:
     - name: Create Bandit directory and save PR changed files
       run: |
         mkdir bandit
-        git diff --name-only --unified=0 HEAD $(git merge-base HEAD ${{ github.event.pull_request.base.sha }}) > bandit/pr_changed_files.txt
-        while IFS= read -r file; do
-        mkdir -p "bandit/$(dirname "$file")"
-        echo "Diff for $file:" > "bandit/$file.diff"
-        git diff --no-prefix "$file" >> "bandit/$file.diff"
-        done < bandit/pr_changed_files.txt
-        cat "bandit/pr_changed_files.txt"
+        git diff --unified=0 HEAD $(git merge-base HEAD ${{ github.event.pull_request.base.sha }}) > bandit/pr_changed_files.txt
         echo "********"
         cd bandit 
         ls
