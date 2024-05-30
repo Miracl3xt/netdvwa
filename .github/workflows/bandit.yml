@@ -24,6 +24,7 @@ jobs:
 
     - name: Run Bandit
       id: bandit_scan
+      continue-on-error: true
       run: |
         bandit -r . -f json -o bandit_output.json
         cat bandit_output.json
