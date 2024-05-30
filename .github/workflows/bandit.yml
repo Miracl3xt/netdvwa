@@ -25,11 +25,21 @@ jobs:
     - name: Install Bandit
       run: pip install bandit
 
+    - name: Create Bandit directory and save PR changed files
+      run: |
+        mkdir bandit
+        git diff --name-only --unified=0 HEAD $(git merge-base HEAD ${{ github.event.pull_request.base.sha }}) > bandit/pr_changed_files.txt
+        while IFS= read -r file; do
+        mkdir -p "bandit/$(dirname "$file")"
+        echo "Diff for $file:" > "bandit/$file.diff"
+        git diff --no-prefix "$file" >> "bandit/$file.diff"
+        done < bandit/pr_changed_files.txt
+
     - name: Run Bandit
       id: bandit_scan
       run: |
         echo "Running Bandit..."
-        bandit -r ${{ github.workspace }}/${{ github.event.pull_request.head.ref }} -f json -o bandit_output.json || true
+        bandit -r bandit -f json -o bandit_output.json || true
         cat "bandit_output.json"
         echo "Bandit scan completed."
 
