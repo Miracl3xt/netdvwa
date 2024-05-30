@@ -10,10 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
     # Fetch only the pull request changes
     - name: Fetch PR changes
       run: git fetch origin +refs/pull/${{ github.event.pull_request.number }}/merge
-
+      
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -25,7 +28,9 @@ jobs:
     - name: Create Bandit directory and save PR changed files
       run: |
         mkdir bandit
-        ls dsvpwa
+        git diff --name-only main...${{ github.event.pull_request.head.sha }} | xargs -I {} sh -c 'mkdir -p bandit/$(dirname {}); git show ${{ github.event.pull_request.head.sha }}:{} > bandit/{}'
+        echo"****"
+        ls bandit
 
     - name: Run Bandit
       id: bandit_scan
