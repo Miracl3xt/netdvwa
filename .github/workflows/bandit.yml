@@ -1,8 +1,9 @@
-name: Bandit Code Scan
+name: Bandit Python Code Scan
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 jobs:
   bandit-scan:
@@ -10,61 +11,47 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.x'
 
     - name: Install Bandit
-      run: |
-        python -m pip install --upgrade pip
-        pip install bandit
+      run: pip install bandit
 
     - name: Run Bandit
       id: bandit_scan
-      continue-on-error: true
-      run: |
-        bandit -r . -f json -o bandit_output.json
-        cat bandit_output.json
+      run: bandit -r . -f json -o bandit_output.json || true
 
     - name: Analyze Bandit Results
       id: analyze_results
       run: |
-        CRITICAL_FOUND=$(jq '.results[] | select(.issue_severity=="CRITICAL")' bandit_output.json)
-        if [ -n "$CRITICAL_FOUND" ]; then
-          echo "critical_found=true" >> $GITHUB_ENV
+        CRITICAL_ISSUES=$(jq '[.results[] | select(.issue_severity=="CRITICAL") ] | length' bandit_output.json)
+        HIGH_ISSUES=$(jq '[.results[] | select(.issue_severity=="HIGH") ] | length' bandit_output.json)
+
+        echo "Critical Issues: $CRITICAL_ISSUES"
+        echo "High Issues: $HIGH_ISSUES"
+        
+        if [ "$CRITICAL_ISSUES" -gt 0 ] || [ "$HIGH_ISSUES" -gt 0 ]; then
+          echo "::set-output name=status::block"
         else
-          echo "critical_found=false" >> $GITHUB_ENV
+          echo "::set-output name=status::success"
         fi
 
-    - name: Comment on PR
-      if: env.critical_found == 'true'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            body: 'Block: Critical vulnerability found.'
-          })
+    - name: Add Comment and Block PR
+      if: steps.analyze_results.outputs.status == 'block'
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body 'Block'
+        gh pr close ${{ github.event.pull_request.number }}
+      env:
+        GH_TOKEN: ${{ secrets.netsk }}
 
-    - name: Fail if Critical Found
-      if: env.critical_found == 'true'
-      run: exit 1
-
-    - name: Auto-merge PR
-      if: env.critical_found == 'false'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          github.pulls.merge({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: context.issue.number,
-            merge_method: 'merge'
-          })
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            body: 'Successful: No critical vulnerabilities found. PR auto-merged.'
-          })
+    - name: Add Comment and Merge PR
+      if: steps.analyze_results.outputs.status == 'success'
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body 'Successful'
+        gh pr merge ${{ github.event.pull_request.number }} --merge
+      env:
+        GH_TOKEN: ${{ secrets.netsk }}
