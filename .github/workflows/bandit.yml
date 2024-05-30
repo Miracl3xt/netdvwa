@@ -30,15 +30,13 @@ jobs:
         mkdir -p "bandit/$(dirname "$filename")"
         curl -sL "https://raw.githubusercontent.com/${{ github.repository }}/$base_branch/$filename" > "bandit/$filename"
         done
-        ls bandit
-        cd bandit
-        cat *.*
+        ls bandit #checking if contents is gettiing refreshed
 
     - name: Run Bandit
       id: bandit_scan
       run: |
         echo "Running Bandit..."
-        cd bandit
+        cd bandit | ls -lR
         bandit -r . -f json -o ../bandit_output.json || true
         cd ..
         cat "bandit_output.json"
