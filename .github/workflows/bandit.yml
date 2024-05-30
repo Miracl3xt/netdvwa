@@ -25,6 +25,9 @@ jobs:
       id: bandit_scan
       run: bandit -r . -f json -o bandit_output.json || true
 
+    - name: Debug Bandit Output
+      run: cat bandit_output.json
+
     - name: Analyze Bandit Results
       id: analyze_results
       run: |
@@ -35,23 +38,23 @@ jobs:
         echo "High Issues: $HIGH_ISSUES"
         
         if [ "$CRITICAL_ISSUES" -gt 0 ] || [ "$HIGH_ISSUES" -gt 0 ]; then
-          echo "::set-output name=status::block"
+          echo "status=block" >> $GITHUB_ENV
         else
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_ENV
         fi
 
     - name: Add Comment and Block PR
-      if: steps.analyze_results.outputs.status == 'block'
+      if: env.status == 'block'
       run: |
         gh pr comment ${{ github.event.pull_request.number }} --body 'Block'
         gh pr close ${{ github.event.pull_request.number }}
       env:
-        GH_TOKEN: ${{ secrets.netsk }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Add Comment and Merge PR
-      if: steps.analyze_results.outputs.status == 'success'
+      if: env.status == 'success'
       run: |
         gh pr comment ${{ github.event.pull_request.number }} --body 'Successful'
         gh pr merge ${{ github.event.pull_request.number }} --merge
       env:
-        GH_TOKEN: ${{ secrets.netsk }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
