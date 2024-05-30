@@ -21,18 +21,21 @@ jobs:
     - name: Install Bandit
       run: pip install bandit
 
-    - name: Run Bandit
-      id: bandit_scan
-      run: bandit -r . -f json -o bandit_output.json || true
+    - name: List changed files
+      id: list_files
+      run: |
+        git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt
 
-    - name: Debug Bandit Output
-      run: cat bandit_output.json
+    - name: Run Bandit on changed files
+      id: bandit_scan
+      run: |
+        xargs -a changed_files.txt -I {} bandit -r {} -f json -o {}.bandit_output || true
 
     - name: Analyze Bandit Results
       id: analyze_results
       run: |
-        CRITICAL_ISSUES=$(jq '[.results[] | select(.issue_severity=="CRITICAL") ] | length' bandit_output.json)
-        HIGH_ISSUES=$(jq '[.results[] | select(.issue_severity=="HIGH") ] | length' bandit_output.json)
+        CRITICAL_ISSUES=$(find . -name "*.bandit_output" -exec jq '[.results[] | select(.issue_severity=="CRITICAL") ] | length' {} + | awk '{ total += $1 } END { print total }')
+        HIGH_ISSUES=$(find . -name "*.bandit_output" -exec jq '[.results[] | select(.issue_severity=="HIGH") ] | length' {} + | awk '{ total += $1 } END { print total }')
 
         echo "Critical Issues: $CRITICAL_ISSUES"
         echo "High Issues: $HIGH_ISSUES"
