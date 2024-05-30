@@ -28,8 +28,8 @@ jobs:
     - name: Create Bandit directory and save PR changed files
       run: |
         mkdir bandit
-        git diff --name-only main...${{ github.event.pull_request.head.sha }} | xargs -I {} sh -c 'mkdir -p bandit/$(dirname {}); git show ${{ github.event.pull_request.head.sha }}:{} > bandit/{}'
-        echo"****"
+        git diff --name-only main...${{ github.event.pull_request.base.sha }} | xargs -I {} sh -c 'mkdir -p bandit/$(dirname {}); git show ${{ github.event.pull_request.head.sha }}:{} > bandit/{}'
+        echo "----------"
         ls bandit
 
     - name: Run Bandit
